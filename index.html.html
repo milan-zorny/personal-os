@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milan OS v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --bg:#07070f;
+  --s1:#0d0d1c;
+  --s2:#131326;
+  --s3:#1a1a32;
+  --b1:#222240;
+  --b2:#30305a;
+  --accent:#7c6aff;
+  --a2:#a594ff;
+  --aglow:rgba(124,106,255,0.12);
+  --green:#22d3a0;
+  --gdim:rgba(34,211,160,0.1);
+  --amber:#f59e0b;
+  --adim:rgba(245,158,11,0.1);
+  --red:#f87171;
+  --rdim:rgba(248,113,113,0.1);
+  --blue:#60a5fa;
+  --bdim:rgba(96,165,250,0.1);
+  --t1:#eeeef8;
+  --t2:#8888aa;
+  --t3:#44445a;
+  --sw:230px;
+}
+
+body{background:var(--bg);color:var(--t1);font-family:'Space Grotesk',sans-serif;display:flex;min-height:100vh;overflow-x:hidden;}
+
+/* SIDEBAR */
+.sb{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--b1);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:200;overflow-y:auto;}
+.sb-brand{padding:22px 18px 18px;border-bottom:1px solid var(--b1);}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:3px;}
+.sb-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#b44fff);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-name{font-size:16px;font-weight:700;letter-spacing:0.04em;}
+.sb-sub{font-size:9px;color:var(--t3);font-family:'Space Mono',monospace;letter-spacing:0.14em;text-transform:uppercase;margin-left:44px;}
+.sb-sec{padding:14px 12px 6px;}
+.sb-lbl{font-size:9px;font-family:'Space Mono',monospace;letter-spacing:0.16em;text-transform:uppercase;color:var(--t3);padding:0 8px;margin-bottom:4px;}
+.nav{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);transition:all .15s;border:1px solid transparent;margin-bottom:2px;user-select:none;}
+.nav:hover{background:var(--s2);color:var(--t1);border-color:var(--b1);}
+.nav.active{background:var(--aglow);color:var(--a2);border-color:rgba(124,106,255,.28);}
+.nav-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;font-family:'Space Mono',monospace;padding:2px 6px;border-radius:4px;font-weight:700;}
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--b1);}
+.sb-dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:6px;box-shadow:0 0 6px var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.sb-status{font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;}
+.countdown-sidebar{background:var(--s3);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin:10px 12px 0;text-align:center;}
+.cs-label{font-size:9px;color:var(--t3);font-family:'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+.cs-num{font-size:32px;font-weight:700;font-family:'Space Mono',monospace;color:var(--accent);line-height:1;}
+.cs-sub{font-size:9px;color:var(--t2);font-family:'Space Mono',monospace;margin-top:2px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-height:100vh;}
+
+/* PAGES */
+.page{display:none;padding:28px 30px;animation:fadeIn .2s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:22px;}
+.ph h1{font-size:24px;font-weight:700;letter-spacing:-.02em;}
+.ph p{font-size:12px;color:var(--t2);margin-top:3px;font-family:'Space Mono',monospace;}
+.ph-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.clock-chip{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:12px;color:var(--t2);}
+
+/* DIRECTIVE */
+.directive{background:var(--s1);border:1px solid var(--b1);border-left:3px solid var(--accent);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:var(--t2);}
+.directive strong{color:var(--t1);}
+.dir-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px;}
+
+/* QUICK ACTIONS */
+.qa-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.qa-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--b1);background:var(--s1);cursor:pointer;font-size:11px;font-family:'Space Mono',monospace;color:var(--t2);transition:all .15s;}
+.qa-btn:hover{border-color:var(--accent);color:var(--a2);background:var(--aglow);}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:18px;transition:border-color .15s;}
+.card:hover{border-color:var(--b2);}
+.card.full{grid-column:1/-1;}
+
+/* CARD HEADER */
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ct{font-size:10px;font-family:'Space Mono',monospace;color:var(--t2);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:7px;}
+.ct-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.ca{font-size:10px;font-family:'Space Mono',monospace;color:var(--accent);cursor:pointer;padding:3px 8px;border:1px solid rgba(124,106,255,.25);border-radius:4px;transition:all .15s;}
+.ca:hover{background:var(--aglow);}
+
+/* KPI */
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;transition:border-color .15s;}
+.kpi:hover{border-color:var(--b2);}
+.kpi-lbl{font-size:9px;font-family:'Space Mono',monospace;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+.kpi-val{font-size:26px;font-weight:700;font-family:'Space Mono',monospace;line-height:1;margin-bottom:5px;}
+.kpi-sub{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:5px;}
+.badge{font-size:9px;font-family:'Space Mono',monospace;padding:2px 6px;border-radius:4px;font-weight:700;}
+.b-green{background:var(--gdim);color:var(--green);}
+.b-amber{background:var(--adim);color:var(--amber);}
+.b-red{background:var(--rdim);color:var(--red);}
+.b-purple{background:var(--aglow);color:var(--a2);}
+.b-blue{background:var(--bdim);color:var(--blue);}
+
+/* DIVIDER */
+.div-row{display:flex;align-items:center;gap:10px;margin:18px 0 14px;}
+.div-lbl{font-size:9px;font-family:'Space Mono',monospace;color:var(--t3);text-transform:uppercase;letter-spacing:.16em;white-space:nowrap;}
+.div-line{flex:1;height:1px;background:var(--b1);}
+
+/* TASK */
+.task{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;}
+.task:last-child{border-bottom:none;padding-bottom:0;}
+.task:hover{background:rgba(255,255,255,.01);border-radius:6px;padding-left:4px;}
+.tck{width:16px;height:16px;border:1.5px solid var(--b2);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;}
+.tck.done{background:var(--green);border-color:var(--green);color:var(--bg);}
+.tc{flex:1;}
+.tt{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px;}
+.tt.done{text-decoration:line-through;color:var(--t3);}
+.td{font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;}
+.tp{font-size:9px;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;font-weight:700;white-space:nowrap;align-self:flex-start;margin-top:1px;}
+
+/* ACTIVITY */
+.act{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1);}
+.act:last-child{border-bottom:none;padding-bottom:0;}
+.act-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.act-c{flex:1;}
+.act-t{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px;}
+.act-m{font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;}
+
+/* PROGRESS */
+.prog{margin-bottom:12px;}
+.prog:last-child{margin-bottom:0;}
+.prog-h{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;}
+.prog-n{color:var(--t1);font-weight:500;}
+.prog-v{color:var(--t3);font-family:'Space Mono',monospace;font-size:10px;}
+.prog-bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;}
+
+/* HABIT */
+.habit{margin-bottom:16px;}
+.habit:last-child{margin-bottom:0;}
+.habit-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.habit-n{font-size:12px;font-weight:500;color:var(--t1);}
+.habit-str{font-size:10px;color:var(--amber);font-family:'Space Mono',monospace;}
+.habit-days{display:flex;gap:4px;}
+.hday{flex:1;height:24px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Space Mono',monospace;color:var(--t3);transition:all .15s;}
+.hday:hover{transform:scale(1.1);}
+.hday.done{background:var(--accent);color:#fff;}
+.hday.empty{background:var(--s3);}
+.hday.today{border:1.5px solid var(--a2);}
+.day-labels{display:flex;gap:4px;margin-bottom:4px;}
+.dl{flex:1;font-size:8px;font-family:'Space Mono',monospace;color:var(--t3);text-align:center;}
+
+/* MODULE */
+.mod{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1);}
+.mod:last-child{border-bottom:none;}
+.mod-num{width:26px;height:26px;background:var(--s3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--t2);flex-shrink:0;}
+.mod-num.done{background:var(--gdim);color:var(--green);}
+.mod-num.cur{background:var(--aglow);color:var(--a2);}
+.mod-name{flex:1;font-size:12px;font-weight:500;color:var(--t1);}
+.mod-name.done{text-decoration:line-through;color:var(--t3);}
+.mod-due{font-size:10px;font-family:'Space Mono',monospace;color:var(--t3);}
+
+/* SERIES CARD */
+.series{background:linear-gradient(135deg,rgba(124,106,255,.08),rgba(180,79,255,.04));border:1px solid rgba(124,106,255,.25);border-radius:12px;padding:20px;margin-bottom:18px;position:relative;overflow:hidden;}
+.series::before{content:'20';position:absolute;right:-8px;top:-24px;font-size:130px;font-weight:900;font-family:'Space Mono',monospace;color:rgba(124,106,255,.05);line-height:1;pointer-events:none;}
+.ser-tag{font-size:9px;font-family:'Space Mono',monospace;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px;}
+.ser-name{font-size:22px;font-weight:700;margin-bottom:3px;}
+.ser-sub{font-size:12px;color:var(--t2);margin-bottom:16px;}
+.ser-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.ser-bar{flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.ser-fill{height:100%;background:linear-gradient(90deg,var(--accent),#b44fff);border-radius:3px;}
+.ser-ct{font-family:'Space Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap;}
+.day-dots{display:flex;gap:5px;flex-wrap:wrap;}
+.dd{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Space Mono',monospace;font-weight:700;cursor:pointer;transition:all .15s;}
+.dd:hover{transform:scale(1.15);}
+.dd.done{background:var(--accent);color:#fff;}
+.dd.today{background:var(--s3);border:1.5px solid var(--a2);color:var(--a2);}
+.dd.future{background:var(--s3);color:var(--t3);}
+
+/* CONTENT CAL */
+.ccday{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1);align-items:flex-start;}
+.ccday:last-child{border-bottom:none;}
+.ccdl{font-family:'Space Mono',monospace;font-size:10px;color:var(--t3);width:28px;flex-shrink:0;margin-top:2px;}
+.ccdl.today{color:var(--a2);}
+.cc-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.cchip{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;font-family:'Space Mono',monospace;}
+
+/* INFO ROW */
+.info-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--b1);font-size:12px;}
+.info-row:last-child{border-bottom:none;}
+.info-ico{font-size:13px;width:22px;text-align:center;flex-shrink:0;}
+.info-label{color:var(--t2);flex:1;}
+.info-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--t1);}
+
+/* SECTION HEADER */
+.sec-h{font-size:11px;font-family:'Space Mono',monospace;color:var(--t3);text-transform:uppercase;letter-spacing:.14em;margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
+.sec-h::after{content:'';flex:1;height:1px;background:var(--b1);}
+
+/* COLORS */
+.c-purple{color:var(--a2);}
+.c-green{color:var(--green);}
+.c-amber{color:var(--amber);}
+.c-red{color:var(--red);}
+.c-blue{color:var(--blue);}
+.dot-purple{background:var(--accent);}
+.dot-green{background:var(--green);}
+.dot-amber{background:var(--amber);}
+.dot-blue{background:var(--blue);}
+.dot-red{background:var(--red);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--b1);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sb">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-icon">MZ</div>
+      <div class="sb-name">MILAN OS</div>
+    </div>
+    <div class="sb-sub">Personal Command Center</div>
+  </div>
+
+  <div class="countdown-sidebar">
+    <div class="cs-label">Days Til 20</div>
+    <div class="cs-num" id="sbDays">54</div>
+    <div class="cs-sub">Sep 26 · Birthday</div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Main</div>
+    <div class="nav active" data-page="home"><span class="nav-ico">⌘</span> Home</div>
+    <div class="nav" data-page="social"><span class="nav-ico">📱</span> Social Media</div>
+    <div class="nav" data-page="health"><span class="nav-ico">💪</span> Health</div>
+    <div class="nav" data-page="school"><span class="nav-ico">📚</span> School</div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Tasks</div>
+    <div class="nav" data-page="tasks"><span class="nav-ico">✓</span> All Tasks <span class="nav-badge" id="taskCount">20</span></div>
+    <div class="nav" data-page="series"><span class="nav-ico">🎬</span> 20 Days Til 20</div>
+    <div class="nav" data-page="schedule"><span class="nav-ico">📅</span> Schedule</div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Tools</div>
+    <div class="nav" data-page="content"><span class="nav-ico">🎯</span> Content OS</div>
+    <div class="nav" data-page="brand"><span class="nav-ico">🤝</span> Brand Deals</div>
+    <div class="nav" data-page="analytics"><span class="nav-ico">📊</span> Analytics</div>
+  </div>
+
+  <div class="sb-footer">
+    <div><span class="sb-dot"></span><span class="sb-status" id="liveClock">--:--:--</span></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ══════════════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="ph">
+    <div class="ph-row">
+      <div>
+        <h1>Command Center</h1>
+        <p>monday · aug 03 · 2026 · the build starts now</p>
+      </div>
+      <div class="clock-chip" id="homeTime">--:--:--</div>
+    </div>
+  </div>
+
+  <div class="directive">
+    <div class="dir-label">Current Focus</div>
+    <strong>Get equipment. Fix the profile. Launch 20 Days Til 20.</strong> — Series starts Sep 6, birthday Sep 26.
+  </div>
+
+  <div class="qa-row">
+    <div class="qa-btn" onclick="goPage('social')">📱 Social Setup</div>
+    <div class="qa-btn" onclick="goPage('series')">🎬 20 Days Til 20</div>
+    <div class="qa-btn" onclick="goPage('tasks')">✓ All Tasks</div>
+    <div class="qa-btn" onclick="goPage('health')">💪 Health</div>
+    <div class="qa-btn" onclick="goPage('school')">📚 School</div>
+    <div class="qa-btn" onclick="goPage('content')">🎯 Content OS</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="g4">
+    <div class="kpi">
+      <div class="kpi-lbl">Instagram Followers</div>
+      <div class="kpi-val c-purple">19.1K</div>
+      <div class="kpi-sub"><span class="badge b-amber">Pre-Launch</span> 0 active posts</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Profile Setup</div>
+      <div class="kpi-val c-amber">15%</div>
+      <div class="kpi-sub"><span class="badge b-amber">In Progress</span> handle pending</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Tasks Complete</div>
+      <div class="kpi-val c-green" id="homeTasksDone">1</div>
+      <div class="kpi-sub"><span class="badge b-green">Active</span><span id="homeTasksTotal">/ 20 total</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Days Til Series</div>
+      <div class="kpi-val c-purple" id="homeDaysSeries">34</div>
+      <div class="kpi-sub"><span class="badge b-purple">Sep 6</span> first post</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- RECENT ACTIVITY -->
+    <div class="card">
+      <div class="ch">
+        <div class="ct"><span class="ct-dot dot-purple"></span>Recent Activity</div>
+      </div>
+      <div class="act">
+        <div class="act-ico" style="background:var(--gdim)">💰</div>
+        <div class="act-c">
+          <div class="act-t">Baseball coaching check — $3,900</div>
+          <div class="act-m">Jun 29 · $3,000 to savings · $975 tax reserve</div>
+        </div>
+        <span class="badge b-green">PAID</span>
+      </div>
+      <div class="act">
+        <div class="act-ico" style="background:var(--aglow)">📓</div>
+        <div class="act-c">
+          <div class="act-t">Content OS built in Notion</div>
+          <div class="act-m">8 strategy pages · 30-day calendar</div>
+        </div>
+        <span class="badge b-green">DONE</span>
+      </div>
+      <div class="act">
+        <div class="act-ico" style="background:var(--adim)">🛋</div>
+        <div class="act-c">
+          <div class="act-t">Couch sale check incoming</div>
+          <div class="act-m">Consignment · funds equipment purchase</div>
+        </div>
+        <span class="badge b-amber">PENDING</span>
+      </div>
+      <div class="act">
+        <div class="act-ico" style="background:var(--adim)">🎙</div>
+        <div class="act-c">
+          <div class="act-t">Rode Wireless GO II — buy when check arrives</div>
+          <div class="act-m">~$315 total equipment budget</div>
+        </div>
+        <span class="badge b-amber">WAITING</span>
+      </div>
+      <div class="act">
+        <div class="act-ico" style="background:var(--bdim)">📚</div>
+        <div class="act-c">
+          <div class="act-t">BUSN 40 Modules 10 & 11 due</div>
+          <div class="act-m">Aug 2 · Distributing & Promoting Products</div>
+        </div>
+        <span class="badge b-red">DUE SOON</span>
+      </div>
+    </div>
+
+    <!-- THIS WEEK -->
+    <div class="card">
+      <div class="ch">
+        <div class="ct"><span class="ct-dot dot-amber"></span>This Week — Setup Sprint</div>
+      </div>
+      <div class="info-row"><span class="info-ico">📱</span><span class="info-label">Lock in handle (Milan Zorny?)</span><span class="info-val c-amber">TODAY</span></div>
+      <div class="info-row"><span class="info-ico">⚙️</span><span class="info-label">Instagram Batch 1 settings</span><span class="info-val c-amber">TODAY</span></div>
+      <div class="info-row"><span class="info-ico">✉️</span><span class="info-label">Create creator email (Gmail)</span><span class="info-val c-amber">TUE</span></div>
+      <div class="info-row"><span class="info-ico">🐝</span><span class="info-label">Set up Beehiiv email list</span><span class="info-val c-amber">TUE</span></div>
+      <div class="info-row"><span class="info-ico">🤖</span><span class="info-label">Set up ManyChat auto DMs</span><span class="info-val c-amber">WED</span></div>
+      <div class="info-row"><span class="info-ico">🛍</span><span class="info-label">Apply Amazon Influencer</span><span class="info-val c-amber">WED</span></div>
+      <div class="info-row"><span class="info-ico">🎨</span><span class="info-label">Canva story highlight covers</span><span class="info-val c-amber">THU</span></div>
+      <div class="info-row"><span class="info-ico">🎥</span><span class="info-label">Practice on camera daily</span><span class="info-val c-green">ONGOING</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TASKS PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-tasks">
+  <div class="ph">
+    <h1>All Tasks</h1>
+    <p>full priority list · click to complete</p>
+  </div>
+
+  <div class="g2">
+    <!-- DO RIGHT NOW -->
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-red"></span>Do Right Now (Free)</div></div>
+
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck done">✓</div>
+        <div class="tc"><div class="tt done">Set up Content OS in Notion</div><div class="td">8 pages built · 30-day calendar done</div></div>
+        <span class="tp b-green">DONE</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Lock in Instagram handle</div><div class="td">Milan Zorny · MilanDoesLife · justmilan</div></div>
+        <span class="tp b-red">HIGH</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Change Instagram handle</div><div class="td">Costs nothing · do it today</div></div>
+        <span class="tp b-red">HIGH</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Do Instagram settings (Batch 1)</div><div class="td">Shadowban check · crosspost · SEO · suggestions · upload quality</div></div>
+        <span class="tp b-red">HIGH</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Create creator email (Gmail)</div><div class="td">milan.zorny@gmail.com or similar · business contact only</div></div>
+        <span class="tp b-red">HIGH</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Apply for Amazon Influencer Program</div><div class="td">amazon.com/influencer · approval 3-7 days · do now</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Set up Beehiiv email list</div><div class="td">beehiiv.com · free · 15 min · get link ready for bio</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Set up ManyChat auto DMs</div><div class="td">manychat.com · connect Instagram · keyword trigger DMs</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Write and finalize bio</div><div class="td">Milan Zorny — Men's Lifestyle · elevator pitch · CTA · deep link</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Design story highlight covers (Canva)</div><div class="td">About Me · Gym · Clean · Faith · Life · Reset · Deals</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Set up Linktree or Stan Store</div><div class="td">Run URL through deep link generator before bio</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Submit data broker removal requests</div><div class="td">WhitePages · Spokeo · BeenVerified · FastPeopleSearch · Intelius · MyLife · Radaris</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Practice talking on camera daily</div><div class="td">Use cheap mic · 60 sec clips · never post · build comfort</div></div>
+        <span class="tp b-amber">ONGOING</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Connect Reddit & Twitter in Composio</div><div class="td">Make accounts first · then connect here for trend research</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)">
+        <div class="tck"></div>
+        <div class="tc"><div class="tt">Archive old meme posts</div><div class="td">Clean grid before launch · three dots → Archive on each</div></div>
+        <span class="tp b-amber">MED</span>
+      </div>
+    </div>
+
+    <!-- WHEN CHECK ARRIVES + LAUNCH -->
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-blue"></span>When Check Arrives (Equipment)</div></div>
+
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Buy Rode Wireless GO II with deadcat</div><div class="td">~$200 · the mic everyone has</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Buy 67-inch phone tripod with mount</div><div class="td">~$30 · must extend to eye level</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Buy LED light panel</div><div class="td">~$40 · desk or clip-on style</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Buy clip-on fisheye lens</div><div class="td">~$20 · distinct look for gym/lifestyle</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Change iPhone camera settings</div><div class="td">4K 30fps · Most Compatible · Preserve Settings · Grid · Level</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Download Blackmagic Cam app</div><div class="td">Free · color grade on capture</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Film b-roll library in one session</div><div class="td">Desk · morning · gym · outside · multiple angles everything</div></div>
+          <span class="tp b-blue">SOON</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>Launch & Beyond</div></div>
+
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Film reintroduction video</div><div class="td">Who you are · what changed · what people are following for</div></div>
+          <span class="tp b-green">LAUNCH</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Post first video + start stories</div><div class="td">Stories every day from day one regardless of Reels</div></div>
+          <span class="tp b-green">LAUNCH</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Start 20 Days Til 20 series (Sep 6)</div><div class="td">20 consecutive days · birthday Sep 26</div></div>
+          <span class="tp b-green">SEP 6</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Update fall semester schedule</div><div class="td">Classes start Aug 24 · rebuild calendar here</div></div>
+          <span class="tp b-green">AUG 24</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Build UGC portfolio (3-5 concept videos)</div><div class="td">Products you own · Canva media kit · pitch on JoinBrands/Billo</div></div>
+          <span class="tp b-green">MONTH 1</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Start personal branding club at CC</div><div class="td">Fall 2026 · talk to faculty advisor early · 1 year to run it</div></div>
+          <span class="tp b-green">FALL</span>
+        </div>
+        <div class="task" onclick="toggleTask(this)">
+          <div class="tck"></div>
+          <div class="tc"><div class="tt">Submit transfer applications</div><div class="td">Cal Poly SLO · San Diego schools · this fall semester</div></div>
+          <span class="tp b-green">FALL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     20 DAYS TIL 20 PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-series">
+  <div class="ph">
+    <h1>20 Days Til 20</h1>
+    <p>sep 6 → sep 25 · 20 consecutive days of content</p>
+  </div>
+
+  <div class="series">
+    <div class="ser-tag">● Active Series</div>
+    <div class="ser-name">20 Days Til 20</div>
+    <div class="ser-sub">Post every single day for 20 days leading up to your 20th birthday on Sep 26. Document everything.</div>
+    <div class="ser-bar-row">
+      <div class="ser-bar"><div class="ser-fill" id="serFill" style="width:0%"></div></div>
+      <div class="ser-ct" id="serCount">0 / 20 days</div>
+    </div>
+    <div class="day-dots" id="dayDots"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>Series Framework</div></div>
+      <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Day 1 — Sep 6</span><span class="info-val c-purple">Reintroduction</span></div>
+      <div class="info-row"><span class="info-ico">🎯</span><span class="info-label">Days 1-5</span><span class="info-val">Introduction Era</span></div>
+      <div class="info-row"><span class="info-ico">💪</span><span class="info-label">Days 6-10</span><span class="info-val">Habits & Routine</span></div>
+      <div class="info-row"><span class="info-ico">🧠</span><span class="info-label">Days 11-15</span><span class="info-val">Mindset & Faith</span></div>
+      <div class="info-row"><span class="info-ico">🚀</span><span class="info-label">Days 16-19</span><span class="info-val">The Build & Goals</span></div>
+      <div class="info-row"><span class="info-ico">🎂</span><span class="info-label">Day 20 — Sep 25</span><span class="info-val c-amber">Birthday Eve Finale</span></div>
+      <div class="info-row"><span class="info-ico">🎉</span><span class="info-label">Sep 26</span><span class="info-val c-green">20th Birthday</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>Content Ideas Per Day</div></div>
+      <div class="info-row"><span class="info-ico">🔥</span><span class="info-label">Day 1 Hook</span><span class="info-val">"Before I turn 20..."</span></div>
+      <div class="info-row"><span class="info-ico">📖</span><span class="info-label">Faith Content</span><span class="info-val">3-4 bible study days</span></div>
+      <div class="info-row"><span class="info-ico">🏋️</span><span class="info-label">Gym Content</span><span class="info-val">4-5 workout days</span></div>
+      <div class="info-row"><span class="info-ico">🧹</span><span class="info-label">Cleaning Content</span><span class="info-val">3-4 room/reset days</span></div>
+      <div class="info-row"><span class="info-ico">👥</span><span class="info-label">Friends & Life</span><span class="info-val">2-3 hangout days</span></div>
+      <div class="info-row"><span class="info-ico">💡</span><span class="info-label">Men's Tips</span><span class="info-val">3-4 advice days</span></div>
+      <div class="info-row"><span class="info-ico">📊</span><span class="info-label">Sunday Resets</span><span class="info-val">2-3 reset videos</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>Pre-Series Checklist</div></div>
+    <div class="g3" style="gap:10px;margin-bottom:0;">
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">Handle locked in</div></div><span class="tp b-amber">NEED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">Bio live on profile</div></div><span class="tp b-amber">NEED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">Equipment purchased</div></div><span class="tp b-amber">NEED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">Beehiiv link in bio</div></div><span class="tp b-amber">NEED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">ManyChat active</div></div><span class="tp b-amber">NEED</span>
+      </div>
+      <div class="task" onclick="toggleTask(this)" style="border-bottom:none;padding:8px 0;">
+        <div class="tck"></div><div class="tc"><div class="tt">Old posts archived</div></div><span class="tp b-amber">NEED</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SOCIAL MEDIA PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-social">
+  <div class="ph">
+    <h1>Social Media</h1>
+    <p>@daily.wdh → @milanzorny · pre-launch phase</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>Profile Setup Progress</div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Handle Changed</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Profile Picture</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Bio Written & Live</span><span class="prog-v c-amber">Drafted</span></div><div class="prog-bar"><div class="prog-fill" style="width:25%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Instagram Settings (Batch 1)</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Story Highlights (7 covers)</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Beehiiv + Bio Link</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">ManyChat Auto DMs</span><span class="prog-v c-amber">Pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--accent)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Amazon Storefront</span><span class="prog-v c-amber">Applied?</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">Equipment Purchased</span><span class="prog-v c-amber">Check pending</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green)"></div></div></div>
+      <div class="prog"><div class="prog-h"><span class="prog-n">First Video Posted</span><span class="prog-v c-red">Not started</span></div><div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green)"></div></div></div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>Bio Draft</div></div>
+        <div style="background:var(--s3);border-radius:8px;padding:14px;font-size:12px;line-height:1.8;font-family:'Space Mono',monospace;color:var(--t2);">
+          <div style="color:var(--t1);font-weight:600;margin-bottom:4px;">Milan Zorny — Men's Lifestyle & Self Improvement</div>
+          <div>Documenting the build. Gym, faith, clean, and figuring out my 20s.</div>
+          <div>Built 20k from scratch at 17. Now building something real.</div>
+          <div>New videos weekly — follow the journey 👇</div>
+          <div style="color:var(--accent);">[Deep linked Beehiiv / Linktree]</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>Income Streams</div></div>
+        <div class="info-row"><span class="info-ico">🛍</span><span class="info-label">Amazon Storefront</span><span class="info-val c-amber">Apply now</span></div>
+        <div class="info-row"><span class="info-ico">🤝</span><span class="info-label">Brand Deals</span><span class="info-val c-red">Post-launch</span></div>
+        <div class="info-row"><span class="info-ico">🎬</span><span class="info-label">UGC Contracts</span><span class="info-val c-amber">Build portfolio</span></div>
+        <div class="info-row"><span class="info-ico">📧</span><span class="info-label">Instagram Subscriptions</span><span class="info-val c-red">Post-launch</span></div>
+        <div class="info-row"><span class="info-ico">▶️</span><span class="info-label">YouTube Ad Revenue</span><span class="info-val c-red">Long term</span></div>
+        <div class="info-row"><span class="info-ico">🎓</span><span class="info-label">Digital Course</span><span class="info-val c-red">Year 2+</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ch"><div class="ct"><span class="ct-dot dot-blue"></span>Weekly Content Schedule (Once Live)</div></div>
+    <div class="g4" style="margin-bottom:0;">
+      <div><div style="font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;margin-bottom:8px;">MON</div><div class="cchip" style="background:var(--aglow);color:var(--a2);display:inline-block;margin-bottom:4px;">Reel · Hot Take</div><br><div class="cchip" style="background:var(--s3);color:var(--t2);display:inline-block;margin-top:4px;">Stories</div></div>
+      <div><div style="font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;margin-bottom:8px;">TUE</div><div class="cchip" style="background:var(--bdim);color:var(--blue);display:inline-block;margin-bottom:4px;">Carousel · Tips</div><br><div class="cchip" style="background:var(--s3);color:var(--t2);display:inline-block;margin-top:4px;">Stories</div></div>
+      <div><div style="font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;margin-bottom:8px;">WED</div><div class="cchip" style="background:var(--aglow);color:var(--a2);display:inline-block;margin-bottom:4px;">Reel · How-To</div><br><div class="cchip" style="background:var(--s3);color:var(--t2);display:inline-block;margin-top:4px;">Stories</div></div>
+      <div><div style="font-size:10px;color:var(--t3);font-family:'Space Mono',monospace;margin-bottom:8px;">THU</div><div class="cchip" style="background:var(--s3);color:var(--t2);display:inline-block;margin-bottom:4px;">Edit Day</div><br><div class="cchip" style="background:var(--s3);color:var(--t2);display:inline-block;margin-top:4px;">Stories Only</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HEALTH PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-health">
+  <div class="ph">
+    <h1>Health & Habits</h1>
+    <p>gym · bible study · running · church · skincare</p>
+  </div>
+
+  <div class="g4">
+    <div class="kpi"><div class="kpi-lbl">Gym Streak</div><div class="kpi-val c-green" id="gymStreak">0</div><div class="kpi-sub"><span class="badge b-green">Days</span> 5x per week</div></div>
+    <div class="kpi"><div class="kpi-lbl">Bible Streak</div><div class="kpi-val c-amber" id="bibleStreak">0</div><div class="kpi-sub"><span class="badge b-amber">Days</span> every day</div></div>
+    <div class="kpi"><div class="kpi-lbl">Runs This Week</div><div class="kpi-val c-purple">0</div><div class="kpi-sub"><span class="badge b-purple">/ 2</span> goal</div></div>
+    <div class="kpi"><div class="kpi-lbl">Wake Up Time</div><div class="kpi-val c-blue">6:45</div><div class="kpi-sub"><span class="badge b-blue">AM</span> target</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>This Week's Habits</div></div>
+      <div class="day-labels"><div class="dl">M</div><div class="dl">T</div><div class="dl">W</div><div class="dl">T</div><div class="dl">F</div><div class="dl">S</div><div class="dl">S</div></div>
+
+      <div class="habit">
+        <div class="habit-h"><span class="habit-n">💪 Gym</span><span class="habit-str" id="gym-str">0 day streak</span></div>
+        <div class="habit-days" id="gym-days">
+          <div class="hday today" data-habit="gym" data-day="0">M</div>
+          <div class="hday empty" data-habit="gym" data-day="1">T</div>
+          <div class="hday empty" data-habit="gym" data-day="2">W</div>
+          <div class="hday empty" data-habit="gym" data-day="3">T</div>
+          <div class="hday empty" data-habit="gym" data-day="4">F</div>
+          <div class="hday empty" data-habit="gym" data-day="5">S</div>
+          <div class="hday empty" data-habit="gym" data-day="6">S</div>
+        </div>
+      </div>
+      <div class="habit">
+        <div class="habit-h"><span class="habit-n">📖 Bible Study</span><span class="habit-str" id="bible-str">0 day streak</span></div>
+        <div class="habit-days" id="bible-days">
+          <div class="hday today" data-habit="bible" data-day="0">M</div>
+          <div class="hday empty" data-habit="bible" data-day="1">T</div>
+          <div class="hday empty" data-habit="bible" data-day="2">W</div>
+          <div class="hday empty" data-habit="bible" data-day="3">T</div>
+          <div class="hday empty" data-habit="bible" data-day="4">F</div>
+          <div class="hday empty" data-habit="bible" data-day="5">S</div>
+          <div class="hday empty" data-habit="bible" data-day="6">S</div>
+        </div>
+      </div>
+      <div class="habit">
+        <div class="habit-h"><span class="habit-n">🏃 Running</span><span class="habit-str">0 / 2 this week</span></div>
+        <div class="habit-days">
+          <div class="hday today" data-habit="run" data-day="0">M</div>
+          <div class="hday empty" data-habit="run" data-day="1">T</div>
+          <div class="hday empty" data-habit="run" data-day="2">W</div>
+          <div class="hday empty" data-habit="run" data-day="3">T</div>
+          <div class="hday empty" data-habit="run" data-day="4">F</div>
+          <div class="hday empty" data-habit="run" data-day="5">S</div>
+          <div class="hday empty" data-habit="run" data-day="6">S</div>
+        </div>
+      </div>
+      <div class="habit">
+        <div class="habit-h"><span class="habit-n">⛪ Church</span><span class="habit-str">Every Sunday</span></div>
+        <div class="habit-days">
+          <div class="hday empty" data-habit="church" data-day="0">M</div>
+          <div class="hday empty" data-habit="church" data-day="1">T</div>
+          <div class="hday empty" data-habit="church" data-day="2">W</div>
+          <div class="hday empty" data-habit="church" data-day="3">T</div>
+          <div class="hday empty" data-habit="church" data-day="4">F</div>
+          <div class="hday empty" data-habit="church" data-day="5">S</div>
+          <div class="hday today" data-habit="church" data-day="6">S</div>
+        </div>
+      </div>
+      <div class="habit">
+        <div class="habit-h"><span class="habit-n">🎥 Practice on Camera</span><span class="habit-str">Pre-launch daily</span></div>
+        <div class="habit-days">
+          <div class="hday today" data-habit="cam" data-day="0">M</div>
+          <div class="hday empty" data-habit="cam" data-day="1">T</div>
+          <div class="hday empty" data-habit="cam" data-day="2">W</div>
+          <div class="hday empty" data-habit="cam" data-day="3">T</div>
+          <div class="hday empty" data-habit="cam" data-day="4">F</div>
+          <div class="hday empty" data-habit="cam" data-day="5">S</div>
+          <div class="hday empty" data-habit="cam" data-day="6">S</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>Workout Split</div></div>
+      <div class="info-row"><span class="info-ico">💪</span><span class="info-label">Monday</span><span class="info-val">Push / Core / Forearms</span></div>
+      <div class="info-row"><span class="info-ico">🏋️</span><span class="info-label">Tuesday</span><span class="info-val">Pull / Forearms</span></div>
+      <div class="info-row"><span class="info-ico">🦵</span><span class="info-label">Wednesday</span><span class="info-val">Legs / Core</span></div>
+      <div class="info-row"><span class="info-ico">😴</span><span class="info-label">Thursday</span><span class="info-val c-green">Rest + Run</span></div>
+      <div class="info-row"><span class="info-ico">💪</span><span class="info-label">Friday</span><span class="info-val">Upper / Core / Forearms</span></div>
+      <div class="info-row"><span class="info-ico">🦵</span><span class="info-label">Saturday</span><span class="info-val">Lower / Core</span></div>
+      <div class="info-row"><span class="info-ico">😴</span><span class="info-label">Sunday</span><span class="info-val c-green">Rest + Church</span></div>
+
+      <div class="div-row"><div class="div-lbl">Daily Routine</div><div class="div-line"></div></div>
+      <div class="info-row"><span class="info-ico">⏰</span><span class="info-label">Wake up</span><span class="info-val">6:45 AM</span></div>
+      <div class="info-row"><span class="info-ico">🏋️</span><span class="info-label">Gym</span><span class="info-val">7:15 AM</span></div>
+      <div class="info-row"><span class="info-ico">🚿</span><span class="info-label">Shower + ready</span><span class="info-val">8:30 AM</span></div>
+      <div class="info-row"><span class="info-ico">📖</span><span class="info-label">Bible study (30 min)</span><span class="info-val">9:00 AM</span></div>
+      <div class="info-row"><span class="info-ico">✅</span><span class="info-label">Into the day</span><span class="info-val">9:30 AM</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCHOOL PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-school">
+  <div class="ph">
+    <h1>School</h1>
+    <p>BUSN 40 · ends aug 13 · fall starts aug 24</p>
+  </div>
+
+  <div class="g4">
+    <div class="kpi"><div class="kpi-lbl">Current Week</div><div class="kpi-val c-blue">Wk 6</div><div class="kpi-sub"><span class="badge b-blue">BUSN 40</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Modules Done</div><div class="kpi-val c-green">9</div><div class="kpi-sub"><span class="badge b-green">/ 14 total</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Days Until Final</div><div class="kpi-val c-amber" id="finalDays">10</div><div class="kpi-sub"><span class="badge b-amber">Aug 13</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Fall Semester</div><div class="kpi-val c-purple" id="fallDays">21</div><div class="kpi-sub"><span class="badge b-purple">Aug 24</span> days away</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-blue"></span>BUSN 40 — Remaining Modules</div></div>
+      <div class="mod"><div class="mod-num done">✓</div><div class="mod-name done">Modules 1-9 Complete</div><div class="mod-due c-green">540pts</div></div>
+      <div class="mod"><div class="mod-num cur">10</div><div class="mod-name">Creating Products & Pricing</div><div class="mod-due c-red">Aug 2</div></div>
+      <div class="mod"><div class="mod-num cur">11</div><div class="mod-name">Distributing & Promoting</div><div class="mod-due c-red">Aug 2</div></div>
+      <div class="mod"><div class="mod-num">12</div><div class="mod-name">Financial Information & Accounting</div><div class="mod-due">Aug 9</div></div>
+      <div class="mod"><div class="mod-num">13</div><div class="mod-name">Money & Financial Institutions</div><div class="mod-due">Aug 9</div></div>
+      <div class="mod"><div class="mod-num">14</div><div class="mod-name">Financial Management & Securities</div><div class="mod-due">Aug 13</div></div>
+      <div class="mod"><div class="mod-num" style="background:var(--rdim);color:var(--red)">📝</div><div class="mod-name" style="color:var(--red)">FINAL EXAM</div><div class="mod-due c-red">Aug 13</div></div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>Study Schedule</div></div>
+        <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Tuesday</span><span class="info-val">First module of week</span></div>
+        <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Thursday</span><span class="info-val">Second module / exam</span></div>
+        <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Saturday</span><span class="info-val">Review + catch up</span></div>
+        <div class="info-row"><span class="info-ico">⚠️</span><span class="info-label">Deadline</span><span class="info-val c-amber">Sunday 11:59pm</span></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>Fall Semester</div></div>
+        <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Start Date</span><span class="info-val c-purple">Aug 24</span></div>
+        <div class="info-row"><span class="info-ico">🏛️</span><span class="info-label">School</span><span class="info-val">Community College (CC)</span></div>
+        <div class="info-row"><span class="info-ico">📋</span><span class="info-label">Applications Due</span><span class="info-val c-amber">This Fall</span></div>
+        <div class="info-row"><span class="info-ico">🎯</span><span class="info-label">Target Schools</span><span class="info-val">Cal Poly SLO · SD</span></div>
+        <div class="info-row"><span class="info-ico">🏢</span><span class="info-label">Club Plan</span><span class="info-val">Personal Branding Club?</span></div>
+        <div class="info-row"><span class="info-ico">📆</span><span class="info-label">Schedule Update</span><span class="info-val c-amber">Bring here Aug 24</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCHEDULE PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-schedule">
+  <div class="ph">
+    <h1>Schedule</h1>
+    <p>summer 2026 · baseball · classes · facility</p>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>Upcoming Baseball</div></div>
+    <div class="info-row"><span class="info-ico">⚾</span><span class="info-label">Practices end</span><span class="info-val c-green">This week (Jul 22 was last)</span></div>
+    <div class="info-row"><span class="info-ico">🏟️</span><span class="info-label">Jul 23 — Game vs KTF</span><span class="info-val">12:30pm · Brave · Freshman</span></div>
+    <div class="info-row"><span class="info-ico">✅</span><span class="info-label">Season Complete</span><span class="info-val c-green">Frees up mornings</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-blue"></span>Key Dates</div></div>
+      <div class="info-row"><span class="info-ico">📚</span><span class="info-label">BUSN 40 Mods 10+11 Due</span><span class="info-val c-red">Aug 2</span></div>
+      <div class="info-row"><span class="info-ico">📚</span><span class="info-label">BUSN 40 Mods 12+13 Due</span><span class="info-val">Aug 9</span></div>
+      <div class="info-row"><span class="info-ico">📝</span><span class="info-label">BUSN 40 Final Exam</span><span class="info-val c-red">Aug 13</span></div>
+      <div class="info-row"><span class="info-ico">🏫</span><span class="info-label">Fall Semester Starts</span><span class="info-val c-purple">Aug 24</span></div>
+      <div class="info-row"><span class="info-ico">🎬</span><span class="info-label">20 Days Til 20 — Day 1</span><span class="info-val c-purple">Sep 6</span></div>
+      <div class="info-row"><span class="info-ico">🎬</span><span class="info-label">20 Days Til 20 — Day 20</span><span class="info-val c-purple">Sep 25</span></div>
+      <div class="info-row"><span class="info-ico">🎂</span><span class="info-label">20th Birthday</span><span class="info-val c-green">Sep 26</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>Facility Job</div></div>
+      <div class="info-row"><span class="info-ico">🏟️</span><span class="info-label">Status</span><span class="info-val c-amber">Lease signed · opening soon</span></div>
+      <div class="info-row"><span class="info-ico">💼</span><span class="info-label">Role</span><span class="info-val">Desk / Operations</span></div>
+      <div class="info-row"><span class="info-ico">💵</span><span class="info-label">Pay</span><span class="info-val">Under the table</span></div>
+      <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Mon-Fri Hours</span><span class="info-val">3pm – 9pm</span></div>
+      <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Saturday Hours</span><span class="info-val">9am – 6pm</span></div>
+      <div class="info-row"><span class="info-ico">📅</span><span class="info-label">Sunday Hours</span><span class="info-val">10am – 4pm</span></div>
+      <div class="info-row"><span class="info-ico">⏳</span><span class="info-label">Formal Hire</span><span class="info-val c-amber">Fall or Winter</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CONTENT OS PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-content">
+  <div class="ph">
+    <h1>Content OS</h1>
+    <p>strategy · formats · hooks · 30-day plan</p>
+  </div>
+
+  <div class="directive">
+    <div class="dir-label">The Playbook</div>
+    Built from 65 creator videos. Full strategy lives in <strong>Notion → Content OS</strong>. Use this as your quick reference.
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>Content Pillars</div></div>
+      <div class="info-row"><span class="info-ico">💪</span><span class="info-label">Gym & Fitness</span><span class="info-val c-purple">TOFU + MOFU</span></div>
+      <div class="info-row"><span class="info-ico">🧹</span><span class="info-label">Cleaning & Organization</span><span class="info-val c-purple">TOFU + BOFU</span></div>
+      <div class="info-row"><span class="info-ico">👔</span><span class="info-label">Men's Tips</span><span class="info-val c-purple">TOFU</span></div>
+      <div class="info-row"><span class="info-ico">📖</span><span class="info-label">Faith & Bible Study</span><span class="info-val c-amber">MOFU</span></div>
+      <div class="info-row"><span class="info-ico">🔄</span><span class="info-label">Sunday Reset</span><span class="info-val c-amber">MOFU + BOFU</span></div>
+      <div class="info-row"><span class="info-ico">👥</span><span class="info-label">Life / Friends</span><span class="info-val c-amber">MOFU</span></div>
+      <div class="info-row"><span class="info-ico">🚀</span><span class="info-label">The Journey</span><span class="info-val c-green">MOFU + BOFU</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-amber"></span>7-Day Effort Matrix</div></div>
+      <div class="info-row"><span class="info-ico">🔥</span><span class="info-label">Day 1 — Hot Take</span><span class="info-val c-red">HIGH</span></div>
+      <div class="info-row"><span class="info-ico">📸</span><span class="info-label">Day 2 — BTS / Day in Life</span><span class="info-val c-green">LOW</span></div>
+      <div class="info-row"><span class="info-ico">🧠</span><span class="info-label">Day 3 — Authority / How-To</span><span class="info-val c-amber">MED</span></div>
+      <div class="info-row"><span class="info-ico">📈</span><span class="info-label">Day 4 — Trending Format</span><span class="info-val c-green">LOW</span></div>
+      <div class="info-row"><span class="info-ico">💡</span><span class="info-label">Day 5 — Value / Framework</span><span class="info-val c-amber">MED</span></div>
+      <div class="info-row"><span class="info-ico">🗣️</span><span class="info-label">Day 6 — Yap / Reflection</span><span class="info-val c-green">LOWEST</span></div>
+      <div class="info-row"><span class="info-ico">🎬</span><span class="info-label">Day 7 — Deep Reel / Vlog</span><span class="info-val c-red">HIGH</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-green"></span>Top 10 Hooks</div></div>
+      <div class="info-row"><span class="info-ico">1</span><span class="info-label">Nobody mentions this</span><span class="info-val c-purple">🤲</span></div>
+      <div class="info-row"><span class="info-ico">2</span><span class="info-label">I wish I knew this earlier</span><span class="info-val c-purple">🤝</span></div>
+      <div class="info-row"><span class="info-ico">3</span><span class="info-label">Pause for a second</span><span class="info-val c-purple">☝️</span></div>
+      <div class="info-row"><span class="info-ico">4</span><span class="info-label">Here's the real truth</span><span class="info-val c-purple">✊</span></div>
+      <div class="info-row"><span class="info-ico">5</span><span class="info-label">Let me save you hours</span><span class="info-val c-purple">🤘</span></div>
+      <div class="info-row"><span class="info-ico">6</span><span class="info-label">This may surprise you</span><span class="info-val c-purple">🖖</span></div>
+      <div class="info-row"><span class="info-ico">7</span><span class="info-label">You need this now</span><span class="info-val c-purple">✌️</span></div>
+      <div class="info-row"><span class="info-ico">8</span><span class="info-label">Ever notice this pattern</span><span class="info-val c-purple">🖐️</span></div>
+      <div class="info-row"><span class="info-ico">9</span><span class="info-label">You may not agree with this</span><span class="info-val c-purple">👆</span></div>
+      <div class="info-row"><span class="info-ico">10</span><span class="info-label">I just figured this out</span><span class="info-val c-purple">👊</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="ct-dot dot-blue"></span>The Yap Framework</div></div>
+    <div style="display:flex;gap:16px;align-items:center;">
+      <div style="flex:1;background:var(--rdim);border:1px solid var(--red);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--red);margin-bottom:4px;">STEP 1</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;">Hot Take</div>
+        <div style="font-size:11px;color:var(--t2);">Polarizing opener that stops the scroll</div>
+      </div>
+      <div style="color:var(--t3);font-size:18px;">→</div>
+      <div style="flex:1;background:var(--aglow);border:1px solid rgba(124,106,255,.3);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--a2);margin-bottom:4px;">STEP 2</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;">Actionable Value</div>
+        <div style="font-size:11px;color:var(--t2);">Back it up with proof or advice</div>
+      </div>
+      <div style="color:var(--t3);font-size:18px;">→</div>
+      <div style="flex:1;background:var(--gdim);border:1px solid var(--green);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-family:'Space Mono',monospace;color:var(--green);margin-bottom:4px;">STEP 3</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;">Open Loop</div>
+        <div style="font-size:11px;color:var(--t2);">Cliffhanger that forces them to stay</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     BRAND DEALS PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-brand">
+  <div class="ph">
+    <h1>Brand Deals & UGC</h1>
+    <p>track every deal · ugc + sponsored posts</p>
+  </div>
+
+  <div class="directive">
+    <div class="dir-label">Current Status</div>
+    Pre-launch. <strong>Build your UGC portfolio first</strong> — 3-5 concept videos with products you own. Create a Canva media kit. Then pitch on JoinBrands and Billo.
+  </div>
+
+  <div class="g3">
+    <div class="kpi"><div class="kpi-lbl">Active Deals</div><div class="kpi-val c-red">0</div><div class="kpi-sub"><span class="badge b-red">Pre-Launch</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">UGC Earned</div><div class="kpi-val c-amber">$0</div><div class="kpi-sub"><span class="badge b-amber">Portfolio pending</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Starting Rate</div><div class="kpi-val c-green">$150</div><div class="kpi-sub"><span class="badge b-green">Per UGC video</span></div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>UGC Rate Card</div></div>
+      <div class="info-row"><span class="info-ico">🟢</span><span class="info-label">1 video · easy · organic</span><span class="info-val c-green">$150</span></div>
+      <div class="info-row"><span class="info-ico">🟡</span><span class="info-label">1 video · medium difficulty</span><span class="info-val c-amber">$200</span></div>
+      <div class="info-row"><span class="info-ico">🔴</span><span class="info-label">1 video · hard / multi-scene</span><span class="info-val c-red">$300+</span></div>
+      <div class="info-row"><span class="info-ico">📦</span><span class="info-label">Bundle · 3 videos</span><span class="info-val c-purple">$400-500</span></div>
+      <div class="info-row"><span class="info-ico">📢</span><span class="info-label">Paid ads usage rights</span><span class="info-val c-amber">+50%</span></div>
+      <div class="info-row"><span class="info-ico">⚡</span><span class="info-label">Rush fee under 3 days</span><span class="info-val c-amber">+$50</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct"><span class="ct-dot dot-red"></span>Red Flags — Walk Away</div></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">No rate in writing</span><span class="info-val c-red">WALK</span></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">Gifted only (no cash)</span><span class="info-val c-red">WALK</span></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">Unlimited usage at base rate</span><span class="info-val c-red">WALK</span></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">Exclusivity 30+ days no premium</span><span class="info-val c-red">WALK</span></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">Post on YOUR page at UGC rate</span><span class="info-val c-red">CHARGE MORE</span></div>
+      <div class="info-row"><span class="info-ico">🚩</span><span class="info-label">No contract or brief</span><span class="info-val c-red">WALK</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ANALYTICS PAGE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-analytics">
+  <div class="ph">
+    <h1>Analytics</h1>
+    <p>instagram · composio connected · @daily.wdh</p>
+  </div>
+
+  <div class="directive">
+    <div class="dir-label">Data Source</div>
+    Connected to Instagram via Composio. <strong>Pull live data anytime</strong> by asking Claude to run the weekly content plan workflow.
+  </div>
+
+  <div class="g4">
+    <div class="kpi"><div class="kpi-lbl">Followers</div><div class="kpi-val c-purple">19.1K</div><div class="kpi-sub"><span class="badge b-purple">Live</span> via Composio</div></div>
+    <div class="kpi"><div class="kpi-lbl">Following</div><div class="kpi-val c-blue">1</div><div class="kpi-sub"><span class="badge b-blue">Note</span> follow niche accounts</div></div>
+    <div class="kpi"><div class="kpi-lbl">Posts</div><div class="kpi-val c-amber">0</div><div class="kpi-sub"><span class="badge b-amber">Active</span> old ones archived</div></div>
+    <div class="kpi"><div class="kpi-lbl">Best Post Ever</div><div class="kpi-val c-green">105K</div><div class="kpi-sub"><span class="badge b-green">Likes</span> Day 66 meme</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="ct-dot dot-purple"></span>Top Historical Posts (Meme Era)</div></div>
+    <div class="g3" style="margin-bottom:0;">
+      <div style="background:var(--s3);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--t3);margin-bottom:6px;">DAY 66 · JUL 16 2024</div>
+        <div style="font-size:22px;font-weight:700;color:var(--green);font-family:'Space Mono',monospace;">105,525</div>
+        <div style="font-size:11px;color:var(--t2);">Likes</div>
+        <div style="font-size:11px;color:var(--t3);font-family:'Space Mono',monospace;margin-top:4px;">297 comments</div>
+      </div>
+      <div style="background:var(--s3);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--t3);margin-bottom:6px;">DAY 46 · JUN 26 2024</div>
+        <div style="font-size:22px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;">76,657</div>
+        <div style="font-size:11px;color:var(--t2);">Likes</div>
+        <div style="font-size:11px;color:var(--t3);font-family:'Space Mono',monospace;margin-top:4px;">156 comments</div>
+      </div>
+      <div style="background:var(--s3);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--t3);margin-bottom:6px;">DAY 40 · JUN 20 2024</div>
+        <div style="font-size:22px;font-weight:700;color:var(--blue);font-family:'Space Mono',monospace;">49,165</div>
+        <div style="font-size:11px;color:var(--t2);">Likes</div>
+        <div style="font-size:11px;color:var(--t3);font-family:'Space Mono',monospace;margin-top:4px;">104 comments</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════
+// LOCAL STORAGE ENGINE
+// Saves: tasks, habits, series dots, last page
+// ══════════════════════════════════════════
+
+const LS = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem('milanOS_'+k)); } catch(e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem('milanOS_'+k, JSON.stringify(v)); } catch(e) {} },
+};
+
+// ── CLOCK ──
+function tick(){
+  const n=new Date();
+  const t=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+  const el=document.getElementById('liveClock');
+  const el2=document.getElementById('homeTime');
+  if(el)el.textContent=t;
+  if(el2)el2.textContent=t;
+}
+setInterval(tick,1000);tick();
+
+// ── COUNTDOWN ──
+function updateCountdowns(){
+  const bday=new Date('2026-09-26T00:00:00');
+  const series=new Date('2026-09-06T00:00:00');
+  const final=new Date('2026-08-13T00:00:00');
+  const fall=new Date('2026-08-24T00:00:00');
+  const now=new Date();
+  const days=(d)=>Math.max(0,Math.ceil((d-now)/(86400000)));
+  const sb=document.getElementById('sbDays');
+  const hds=document.getElementById('homeDaysSeries');
+  const fd=document.getElementById('finalDays');
+  const fald=document.getElementById('fallDays');
+  if(sb)sb.textContent=days(bday);
+  if(hds)hds.textContent=days(series);
+  if(fd)fd.textContent=days(final);
+  if(fald)fald.textContent=days(fall);
+}
+updateCountdowns();
+
+// ── NAVIGATION ──
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll(`[data-page="${id}"]`).forEach(n=>n.classList.add('active'));
+  window.scrollTo(0,0);
+  LS.set('lastPage', id);
+}
+
+document.querySelectorAll('.nav[data-page]').forEach(n=>{
+  n.addEventListener('click',()=>goPage(n.dataset.page));
+});
+
+// Restore last page on load
+const lastPage = LS.get('lastPage');
+if(lastPage && document.getElementById('page-'+lastPage)){
+  goPage(lastPage);
+}
+
+// ── TASKS ──
+function countTasks(){
+  const all=document.querySelectorAll('.task .tck');
+  const done=document.querySelectorAll('.task .tck.done');
+  const badge=document.getElementById('taskCount');
+  const hd=document.getElementById('homeTasksDone');
+  const ht=document.getElementById('homeTasksTotal');
+  const remaining=all.length-done.length;
+  if(badge)badge.textContent=remaining;
+  if(hd)hd.textContent=done.length;
+  if(ht)ht.textContent=`/ ${all.length} total`;
+}
+
+function getTaskId(el){
+  // Use task text as unique ID
+  const tt=el.querySelector('.tt');
+  return tt ? tt.textContent.trim().slice(0,40) : null;
+}
+
+function toggleTask(el){
+  const ck=el.querySelector('.tck');
+  const tt=el.querySelector('.tt');
+  const wasDone=ck.classList.contains('done');
+  if(!wasDone){
+    ck.classList.add('done');ck.textContent='✓';
+    if(tt)tt.classList.add('done');
+  } else {
+    ck.classList.remove('done');ck.textContent='';
+    if(tt)tt.classList.remove('done');
+  }
+  // Save to localStorage
+  const id=getTaskId(el);
+  if(id){
+    const tasks=LS.get('tasks')||{};
+    tasks[id]=!wasDone;
+    LS.set('tasks',tasks);
+  }
+  countTasks();
+}
+
+// Restore task states on load
+function restoreTasks(){
+  const saved=LS.get('tasks')||{};
+  document.querySelectorAll('.task').forEach(el=>{
+    const id=getTaskId(el);
+    if(id && saved[id]){
+      const ck=el.querySelector('.tck');
+      const tt=el.querySelector('.tt');
+      if(ck){ck.classList.add('done');ck.textContent='✓';}
+      if(tt)tt.classList.add('done');
+    }
+  });
+  countTasks();
+}
+restoreTasks();
+
+// ── SERIES DOTS ──
+(function(){
+  const c=document.getElementById('dayDots');
+  if(!c)return;
+  const saved=LS.get('seriesDays')||{};
+  let doneCount=0;
+
+  for(let i=1;i<=20;i++){
+    const d=document.createElement('div');
+    const isDone=saved[i]===true;
+    d.className=isDone?'dd done':'dd future';
+    d.textContent=i;
+    if(isDone)doneCount++;
+
+    d.addEventListener('click',function(){
+      const nowDone=this.classList.contains('done');
+      if(nowDone){
+        this.classList.remove('done');this.classList.add('future');doneCount--;
+        saved[i]=false;
+      } else {
+        this.classList.remove('future','today');this.classList.add('done');doneCount++;
+        saved[i]=true;
+      }
+      LS.set('seriesDays',saved);
+      const fill=document.getElementById('serFill');
+      const ct=document.getElementById('serCount');
+      if(fill)fill.style.width=(doneCount/20*100)+'%';
+      if(ct)ct.textContent=doneCount+' / 20 days';
+    });
+    c.appendChild(d);
+  }
+
+  // Set initial bar state
+  const fill=document.getElementById('serFill');
+  const ct=document.getElementById('serCount');
+  if(fill)fill.style.width=(doneCount/20*100)+'%';
+  if(ct)ct.textContent=doneCount+' / 20 days';
+})();
+
+// ── HABITS ──
+function getHabitKey(el){
+  return `habit_${el.dataset.habit}_${el.dataset.day}`;
+}
+
+function restoreHabits(){
+  document.querySelectorAll('.hday').forEach(h=>{
+    const key=getHabitKey(h);
+    const saved=LS.get(key);
+    if(saved===true){
+      h.classList.remove('empty');
+      h.classList.add('done');
+    }
+  });
+}
+
+document.querySelectorAll('.hday').forEach(h=>{
+  h.addEventListener('click',function(){
+    const wasDone=this.classList.contains('done');
+    if(wasDone){
+      this.classList.remove('done');this.classList.add('empty');
+      LS.set(getHabitKey(this),false);
+    } else {
+      this.classList.remove('empty');this.classList.add('done');
+      LS.set(getHabitKey(this),true);
+    }
+    updateHabitStreaks();
+  });
+});
+
+function updateHabitStreaks(){
+  // Count done days for gym and bible streaks
+  const gymDone=document.querySelectorAll('[data-habit="gym"].done').length;
+  const bibleDone=document.querySelectorAll('[data-habit="bible"].done').length;
+  const gs=document.getElementById('gym-str');
+  const bs=document.getElementById('bible-str');
+  const gymKpi=document.getElementById('gymStreak');
+  const bibleKpi=document.getElementById('bibleStreak');
+  if(gs)gs.textContent=gymDone+' day'+(gymDone!==1?'s':'')+' this week';
+  if(bs)bs.textContent=bibleDone+' day'+(bibleDone!==1?'s':'')+' this week';
+  if(gymKpi)gymKpi.textContent=gymDone;
+  if(bibleKpi)bibleKpi.textContent=bibleDone;
+}
+
+restoreHabits();
+updateHabitStreaks();
+
+// ── RESET BUTTON (add to page for easy clearing) ──
+// Uncomment below to add a reset button to the sidebar footer if needed
+// const resetBtn=document.createElement('div');
+// resetBtn.style.cssText='margin-top:8px;font-size:10px;color:var(--t3);cursor:pointer;font-family:Space Mono,monospace;';
+// resetBtn.textContent='⟳ reset all data';
+// resetBtn.onclick=()=>{if(confirm('Reset all saved data?')){localStorage.clear();location.reload();}};
+// document.querySelector('.sb-footer').appendChild(resetBtn);
+</script>
+</body>
+</html>
